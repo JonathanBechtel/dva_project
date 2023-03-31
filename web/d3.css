@@ -1,0 +1,26 @@
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+path.linkdash {
+  fill: none;
+  stroke: #1b8004;
+  stroke-width: 1.5px;
+  stroke-dasharray: 5,5;
+}
+
+circle {
+  /* fill: #ccc; */
+  stroke: #fff;
+  stroke: black;
+  stroke-width: 1.5px;
+}
+
+text {
+  fill: #000;
+  font: 10px sans-serif;
+  pointer-events: none;
+}

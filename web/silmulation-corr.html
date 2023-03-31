@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Force Simulation - Corr Data</title>
+  <link rel="stylesheet" href="d3.css">
+</head>
+
+<body>
+<script type="text/javascript" src="lib/d3.v5.min.js"></script>
+<script>
+
+d3.dsv(",", "../data/corr_graph.csv", function(d) {
+  if (d.Weight > 0) {
+    return {
+      source: d.Source,
+      target: d.Target,
+      value: +d.Weight
+    }
+  }
+}).then(function(data) {
+  //console.log(data)
+  var links = data; //data.map(d => Object.create(d));
+  var nodes = {};
+  var colors =  d3.scaleOrdinal(d3.schemeCategory10);
+
+  // compute the distinct nodes from the links.
+  links.forEach(function(link) {
+      link.source = nodes[link.source] || (nodes[link.source] = {name: link.source});
+      link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
+  });
+
+  var width = 1200,
+      height = 700;
+
+  var force = d3.forceSimulation()
+      .nodes(d3.values(nodes))
+      .force("link", d3.forceLink(links).distance(100))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force("x", d3.forceX())
+      .force("y", d3.forceY())
+      .force("charge", d3.forceManyBody().strength(-250))
+      .alphaTarget(1)
+      .on("tick", tick);
+
+  var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+  // add the links
+  var path = svg.append("g")
+      .selectAll("path")
+      .data(links)
+      .enter()
+      .append("path")
+      .attr("class", function(d) {
+        if (d.value == 1)
+            return "linkdash";
+        else
+            return "link";
+     });
+
+  // define the nodes
+  var node = svg.selectAll(".node")
+      .data(force.nodes())
+      .enter().append("g")
+      .attr("class", "node")
+      .on("dblclick", doubleClicked)
+      .call(d3.drag()
+          .on("start", dragstarted)
+          .on("drag", dragged)
+          .on("end", dragended));
+
+  // Adding credit lable
+  svg.append("text")
+    .attr("id", "credit")
+    .attr("transform", "translate(" + (width - 100 + " ," + (50) + ")"))
+    .attr("text-anchor", "start")
+    .text("Corr Graph");
+
+  // add the nodes
+  node.append("circle")
+      .attr("id", function(d){
+         return (d.name.replace(/\s+/g,'').toLowerCase());
+      })
+      //.attr("r", 5);
+      .attr("r", function(d) {
+        // Calculate weight
+        d.weight = links.filter(function(l) {
+          return l.source.index == d.index || l.target.index == d.index
+        });
+        if (d.weight.length < 7)
+          return 3 + (d.weight.length * 2);
+        return d.weight.length;
+      })
+      .attr("fill", function(d, idx) {
+        if (d.weight.length > 2)
+          return colors(idx);
+        return "#ccc"
+      });
+  
+  // Add lable on nodesss
+  node.append("text")
+    .text(function(d) {
+        return d.name;
+    })
+    .style('fill', '#000')
+    .style('font-size', '12px')
+    .attr('x', 6)
+    .attr('y', 3);
+  
+  // add the curvy lines
+  function tick() {
+    path.attr("d", function(d) {
+      var dx = d.target.x - d.source.x,
+        dy = d.target.y - d.source.y,
+        dr = Math.sqrt(dx * dx + dy * dy);
+      return "M" +
+        d.source.x + "," +
+        d.source.y + "A" +
+        dr + "," + dr + " 0 0,1 " +
+        d.target.x + "," +
+        d.target.y;
+    });
+
+    node.attr("transform", function(d) {
+      return "translate(" + d.x + "," + d.y + ")"; 
+    });
+  };
+
+  function dragstarted(d) {
+    if (!d3.event.active)
+      force.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  };
+
+  function dragged(d) {
+    d.fx = d3.event.x;
+    d.fy = d3.event.y;
+    d.fixed = true;
+  };
+
+  function dragended(d) {
+    if (!d3.event.active)
+      force.alphaTarget(0);
+    // Update color
+    d3.select(this.children[0])
+      .attr("fill", "yellow")
+  };
+
+  function doubleClicked(d){
+    // console.log(d);
+    if (d.fixed) {
+      d.fixed = false;
+      d3.select(this.children[0])
+        .attr("fill", colors(d.index));
+      d.fx = null;
+      d.fy = null;
+    }
+  }
+
+}).catch(function(error) {
+  console.log(error);
+});
+
+</script>
+</body>
+</html>
