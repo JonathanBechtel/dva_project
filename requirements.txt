@@ -4,7 +4,8 @@ pandas==1.5.2
 plotly==5.13.1
 scikit-learn==1.2.0
 scipy==1.10.0
-sktime.git@24f53706b412981a80ab99a73d11f76e0fdb7a18#egg=sktime
+sktime==0.16.1
 statsmodels==0.13.5
-
-
+nbformat==5.8.0
+hbdscan==0.8.29
+matplotlib==3.7.1
