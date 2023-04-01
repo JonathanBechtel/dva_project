@@ -6,7 +6,9 @@
 </head>
 
 <body>
-<script type="text/javascript" src="lib/d3.v5.min.js"></script>
+  <h1>DTW Graph</h1>
+  <div id="graph"></div>
+<script type="text/javascript" src="d3-lib/d3.v5.min.js"></script>
 <script>
 
 d3.dsv(",", "../data/dtw_graph.csv", function(d) {
@@ -29,8 +31,8 @@ d3.dsv(",", "../data/dtw_graph.csv", function(d) {
       link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
   });
 
-  var width = 1200,
-      height = 700;
+  var width = 1500,
+      height = 960;
 
   var force = d3.forceSimulation()
       .nodes(d3.values(nodes))
@@ -42,7 +44,7 @@ d3.dsv(",", "../data/dtw_graph.csv", function(d) {
       .alphaTarget(1)
       .on("tick", tick);
 
-  var svg = d3.select("body").append("svg")
+  var svg = d3.select("#graph").append("svg")
       .attr("width", width)
       .attr("height", height);
 
@@ -71,11 +73,11 @@ d3.dsv(",", "../data/dtw_graph.csv", function(d) {
           .on("end", dragended));
 
   // Adding credit lable
-  svg.append("text")
-    .attr("id", "credit")
-    .attr("transform", "translate(" + (width - 100 + " ," + (50) + ")"))
-    .attr("text-anchor", "start")
-    .text("DTW Graph");
+  // svg.append("text")
+  //   .attr("id", "credit")
+  //   .attr("transform", "translate(" + (width - 100 + " ," + (50) + ")"))
+  //   .attr("text-anchor", "start")
+  //   .text("DTW Graph");
 
   // add the nodes
   node.append("circle")
@@ -88,9 +90,9 @@ d3.dsv(",", "../data/dtw_graph.csv", function(d) {
         d.weight = links.filter(function(l) {
           return l.source.index == d.index || l.target.index == d.index
         });
-        //if (d.weight.length > 1)
-        return 3 + (d.weight.length * 2);
-        //return 5;
+        if (d.weight.length < 7)
+          return 3 + (d.weight.length * 2);
+        return d.weight.length * 2;
       })
       .attr("fill", function(d, idx) {
         if (d.weight.length > 2)
@@ -144,16 +146,16 @@ d3.dsv(",", "../data/dtw_graph.csv", function(d) {
     if (!d3.event.active)
       force.alphaTarget(0);
     // Update color
-    d3.select(this.children[0])
-      .attr("fill", "yellow")
+    // d3.select(this.children[0])
+    //   .attr("fill", "yellow")
   };
 
   function doubleClicked(d){
     // console.log(d);
     if (d.fixed) {
       d.fixed = false;
-      d3.select(this.children[0])
-        .attr("fill", colors(d.index));
+      // d3.select(this.children[0])
+      //   .attr("fill", colors(d.index));
       d.fx = null;
       d.fy = null;
     }

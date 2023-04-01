@@ -6,7 +6,9 @@
 </head>
 
 <body>
-<script type="text/javascript" src="lib/d3.v5.min.js"></script>
+  <h1>Correlation Graph</h1>
+  <div id="graph"></div>
+<script type="text/javascript" src="d3-lib/d3.v5.min.js"></script>
 <script>
 
 d3.dsv(",", "../data/corr_graph.csv", function(d) {
@@ -29,8 +31,8 @@ d3.dsv(",", "../data/corr_graph.csv", function(d) {
       link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
   });
 
-  var width = 1200,
-      height = 700;
+  var width = 1500,
+      height = 960;
 
   var force = d3.forceSimulation()
       .nodes(d3.values(nodes))
@@ -42,7 +44,7 @@ d3.dsv(",", "../data/corr_graph.csv", function(d) {
       .alphaTarget(1)
       .on("tick", tick);
 
-  var svg = d3.select("body").append("svg")
+  var svg = d3.select("#graph").append("svg")
       .attr("width", width)
       .attr("height", height);
 
@@ -54,9 +56,9 @@ d3.dsv(",", "../data/corr_graph.csv", function(d) {
       .append("path")
       .attr("class", function(d) {
         if (d.value == 1)
-            return "linkdash";
+          return "linkdash";
         else
-            return "link";
+          return "link";
      });
 
   // define the nodes
@@ -66,42 +68,46 @@ d3.dsv(",", "../data/corr_graph.csv", function(d) {
       .attr("class", "node")
       .on("dblclick", doubleClicked)
       .call(d3.drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended));
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended));
 
   // Adding credit lable
-  svg.append("text")
-    .attr("id", "credit")
-    .attr("transform", "translate(" + (width - 100 + " ," + (50) + ")"))
-    .attr("text-anchor", "start")
-    .text("Corr Graph");
+  // svg.append("text")
+  //   .attr("id", "credit")
+  //   .attr("transform", "translate(" + (width - 100 + " ," + (50) + ")"))
+  //   .attr("text-anchor", "start")
+  //   .text("Corr Graph");
 
   // add the nodes
   node.append("circle")
-      .attr("id", function(d){
-         return (d.name.replace(/\s+/g,'').toLowerCase());
-      })
-      //.attr("r", 5);
-      .attr("r", function(d) {
-        // Calculate weight
-        d.weight = links.filter(function(l) {
-          return l.source.index == d.index || l.target.index == d.index
-        });
-        if (d.weight.length < 7)
-          return 3 + (d.weight.length * 2);
-        return d.weight.length;
-      })
-      .attr("fill", function(d, idx) {
-        if (d.weight.length > 2)
-          return colors(idx);
-        return "#ccc"
+    .attr("id", function(d){
+      return (d.name.replace(/\s+/g,'').toLowerCase());
+    })
+    //.attr("r", 5);
+    .attr("r", function(d) {
+      // Calculate weight
+      d.weight = links.filter(function(l) {
+        return l.source.index == d.index || l.target.index == d.index
       });
+      if (d.weight.length < 5)
+        return 5 + (d.weight.length * 2);
+      if (d.weight.length < 7)
+        return 3 + (d.weight.length * 2);
+      if (d.weight.length < 12)
+        return (d.weight.length * 2);
+      return d.weight.length;
+    })
+    .attr("fill", function(d, idx) {
+      if (d.weight.length > 2)
+        return colors(idx);
+      return "#ccc"
+    });
   
   // Add lable on nodesss
   node.append("text")
     .text(function(d) {
-        return d.name;
+      return d.name;
     })
     .style('fill', '#000')
     .style('font-size', '12px')
@@ -144,16 +150,16 @@ d3.dsv(",", "../data/corr_graph.csv", function(d) {
     if (!d3.event.active)
       force.alphaTarget(0);
     // Update color
-    d3.select(this.children[0])
-      .attr("fill", "yellow")
+    // d3.select(this.children[0])
+    //   .attr("fill", "yellow")
   };
 
   function doubleClicked(d){
     // console.log(d);
     if (d.fixed) {
       d.fixed = false;
-      d3.select(this.children[0])
-        .attr("fill", colors(d.index));
+      // d3.select(this.children[0])
+      //   .attr("fill", colors(d.index));
       d.fx = null;
       d.fy = null;
     }
