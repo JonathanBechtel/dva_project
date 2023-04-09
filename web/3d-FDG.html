@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+  <title>Force Simulation - DTW</title>
+  <style> body { margin: 0; } </style>
+
+  <script src="//unpkg.com/three"></script>
+  <script src="//unpkg.com/3d-force-graph"></script>
+ 
+
+
+  <style>
+    .node-label {
+      font-size: 12px;
+      padding: 1px 4px;
+      border-radius: 4px;
+      background-color: rgba(208, 31, 31, 0.5);
+      user-select: none;
+    }
+  </style>
+
+</head>
+
+<body>
+  <h1>DTW Graph</h1>
+  <div id="3d-graph"></div>
+  
+  
+<script>
+
+const Graph = ForceGraph3D()
+  (document.getElementById('3d-graph'))
+  .jsonUrl('data_corr.json')
+  .nodeLabel('id')
+  .nodeAutoColorBy('group');
+  
+  
+
+
+</script>
+</body>
+</html>
