@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Coin History</title>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="d3-lib/d3.v5.min.js"></script>
+  <link rel="stylesheet" href="d3.css">
+</head>
+
+<body>
+  <!-- Add heading for the visualization -->
+  <h1>Crypto Coin Details</h1>
+  <br>
+  <!-- Create dropdown element here. Options should be added after reading in game file, they should not be created here.-->
+  <label>Select a Coin:
+      <select id="coinDropdown"></select>
+  </label>
+  <br>
+  <!-- append visualization svg to this div-->
+  <div id="lineChart"></div>
+</body>
+
+<!-- <script type="text/javascript" src="history.js"></script> -->
+<script>
+  // set the dimensions and margins of the graph
+  var margin = {top: 10, right: 30, bottom: 30, left: 60},
+      width = 760 - margin.left - margin.right,
+      height = 450 - margin.top - margin.bottom;
+  var coinDeatails = [];
+  var dropdown = document.getElementById("coinDropdown");
+  const timeConv = d3.timeParse("%Y-%m-%d");
+
+  // append the svg object to the body of the page
+  var svg = d3.select("#lineChart")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  //Read the data
+  d3.dsv(",", "../data/returns_clean.csv", function(row) {
+    // for (const dprop in row) {
+    //   console.log(`${dprop}: ${row[dprop]}`);
+    // }
+    return row;
+  }).then(function(data) {
+    coinDeatails = data.columns.slice(1).map(function(col) {
+      return {
+        name: col.split('_')[0],
+        prices: data.map(function(row){
+          return {
+            date: timeConv(row.timestamp),
+            price: row[col]
+          }
+        })
+      }
+    })
+    // Append coin name options to the dropdown
+    for(var i = 0; i < coinDeatails.length; i++) {
+        var opt = coinDeatails[i];
+        var el = document.createElement("option");
+        el.textContent = opt.name;
+        el.value = opt.name;
+        dropdown.appendChild(el);
+    }
+    drawLine(dropdown.value)
+  })
+
+  dropdown.onchange = function() {
+    // console.log(this.value)
+    drawLine(this.value)
+  }
+  
+  function drawLine(coinName) {
+    // Remove previous lines
+    svg.selectAll('*').remove();
+    
+    dataset = coinDeatails.find(x=>x.name == coinName)
+    data = dataset.prices
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleTime()
+      .domain(d3.extent(data, function(d) {
+        return (d.date);
+      }))
+      .range([ 0, width ]);
+    
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x)
+        .ticks(d3.timeMonth.every(3))
+        .tickFormat(d3.timeFormat('%b %y'))
+      );
+    
+    var min = Math.floor(d3.min(data, function(c) { return c.price; }))
+    var max = d3.max(data, function(d) { return +d.price; })
+    
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain([min, max])
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.date) })
+        .y(function(d) { return y(d.price) })
+      )
+  }
+
+</script>
