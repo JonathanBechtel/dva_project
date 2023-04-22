@@ -1,6 +1,6 @@
 ## DESCRIPTION
 
-This repository features the codebase used to develop the minimum-spanning-trees used to explore the crypto data, model the relationships, and cluster accordingly using minimum spanning trees.
+This repository features the codebase used to develop the minimum-spanning-trees used to explore crypto price/return data over time, model the inter-coin relationships, and cluster accordingly using minimum spanning trees (using correlation metrics between coins as well as dynamic time warping).
 
 This codebase features three key components:
 * Data ingest (Python)
