@@ -5,7 +5,7 @@
 import pandas as pd
 
 
-data = pd.read_csv('corr_graph.csv')
+data = pd.read_csv('../notebooks/corr_graph.csv')
 data.copy()
 data_filt = data[data['Weight']>0]
 
@@ -50,7 +50,7 @@ edge_data['target'] = edge_target
 edge_data['value'] = edge_value
 
 
-edge_data.to_json('/Users/felixlarouche/Documents/Georgia_Tech/CSE6242/Group_Project/dva_project-main/web3..', orient='records')
+edge_data.to_json('data_corr.json', orient='records')
 
 
 # print(edge_data)
