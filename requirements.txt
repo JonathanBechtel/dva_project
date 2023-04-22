@@ -9,3 +9,4 @@ statsmodels==0.13.5
 nbformat==5.8.0
 hdbscan==0.8.29
 matplotlib==3.7.1
+urllib3==1.26.15
