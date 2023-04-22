@@ -35,21 +35,24 @@ def getAllSlugs():
 
         http = urllib3.PoolManager()
         url = 'https://data.block.cc/api/v3/symbols?size=' + str(SIZE) + '&page=' + str(page)
-        resp = http.request('GET', url, headers={
-            'X-api-key': API_KEY
-        })
+        resp = http.request('GET', url, headers={'X-api-key': API_KEY})
                 
         print(resp.status)
+
+        if resp.status == "403":
+            raise Exception('API KEY MISSING FOR BLOCK.CC')
 
         jason = resp.data.decode('utf-8')
 
         data = json.loads(jason)
 
         for slug in data:
-
             slugs.append(slug['slug'])
 
+                
+
     return slugs
+
 
 
 
