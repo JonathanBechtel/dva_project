@@ -5,7 +5,7 @@
 import pandas as pd
 
 
-data = pd.read_csv('../notebooks/corr_graph.csv')
+data = pd.read_csv('notebooks/corr_graph.csv')
 data.copy()
 data_filt = data[data['Weight']>0]
 
