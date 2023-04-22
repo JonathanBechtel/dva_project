@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
-  <title>Force Simulation - DTW</title>
+  <title>3D Force-Directed Graph</title>
   <style> body { margin: 0; } </style>
 
   <script src="//unpkg.com/three"></script>
   <script src="//unpkg.com/3d-force-graph"></script>
   <script src="//unpkg.com/three-spritetext"></script>
+  <script type="text/javascript" src="d3-lib/d3.v5.min.js"></script>
  
 
 
@@ -18,80 +19,112 @@
       background-color: rgba(0,0,0,0.3);
       user-select: none;
     }
+    h1 {
+  /* margin: 0; */
+  /* font-size: 28px; */
+  text-align: center;
+}
   </style>
 
 </head>
 
 <body>
-  <h1>DTW Graph</h1>
+  <h1>3D Force-Directed Graph</h1>
+  <select id="graphDropdown"></select>
+
+  
+
+
   <div id="3d-graph"></div>
 
   <script type="importmap">{ "imports": { "three": "https://unpkg.com/three/build/three.module.js" }}</script>
   <script type="module">
     import { CSS2DRenderer, CSS2DObject } from '//unpkg.com/three/examples/jsm/renderers/CSS2DRenderer.js';
 
-    const Graph = ForceGraph3D({
-      extraRenderers: [new CSS2DRenderer()]
-    })
-    (document.getElementById('3d-graph'))
-      .jsonUrl('data_corr.json')
-      .nodeAutoColorBy('group')
-      .nodeVal('sum')
-      .nodeThreeObject(node => {
-        const nodeEl = document.createElement('div');
-        nodeEl.textContent = node.id;
-        nodeEl.style.color = node.color;
-        nodeEl.className = 'node-label';
-        return new CSS2DObject(nodeEl);
-      })
-      .nodeThreeObjectExtend(true)
-      .onNodeClick(node => {
-          // Aim at node from outside it
-          const distance = 40;
-          const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
-          const newPos = node.x || node.y || node.z
-            ? { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }
-            : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
+    var dataset = [{name: 'Correlation Matrix', file:'data_corr.json'} ,{name: 'Dynamic Time Warping' , file:'data_dtw.json'}];
 
-          Graph.cameraPosition(
-            newPos, // new position
-            node, // lookAt ({ x, y, z })
-            3000  // ms transition duration
-          );
-        });
-    ;
+    //Initialize
 
-    Graph.d3Force('charge').strength(-500);
+    getGraph(dataset[0].file)
+   
+   
+
+    //Drop down
+d3.select("#graphDropdown")
+.selectAll('myOptions')
+.data(dataset)
+.enter()
+.append('option')
+.text(function (d) { return d.name; }) // text showed in the menu
+.attr("value", function (d) { return d.file; }) 
 
 
+d3.select("#graphDropdown").on("change", function(d) {
+// recover the option that has been chosen
+var selectedOption = d3.select(this).property("value")
+// run the updateChart function with this selected option
+getGraph(selectedOption)
+})
+
+
+  // var dataset = 'data_dtw.json';
+
+  // getGraph(dataset);
+
+    ///_____________________________________________________GRAPH____________________________________________________________
+
+    // test()
     
+    function getGraph(data){
 
-  </script>
-</body>
-  
-<!-- <script>
+      const Graph = ForceGraph3D({
+        extraRenderers: [new CSS2DRenderer()]
+      })
+      (document.getElementById('3d-graph'))
+        .jsonUrl(data)
+        .nodeAutoColorBy('group')
+        .nodeVal('sum')
+        .nodeThreeObject(node => {
+          const nodeEl = document.createElement('div');
+          nodeEl.textContent = node.id;
+          nodeEl.style.color = node.color;
+          nodeEl.className = 'node-label';
+          return new CSS2DObject(nodeEl);
+        })
+        .nodeThreeObjectExtend(true)
+        // .onBackgroundClick(
 
-const Graph = ForceGraph3D()
-  (document.getElementById('3d-graph'))
-  .jsonUrl('data_corr.json')
-  .nodeLabel('id')
-  .nodeAutoColorBy('group')
-  .nodeThreeObject(node => {
-          const sprite = new SpriteText(node.id);
-          sprite.material.depthWrite = false; // make sprite background transparent
-          sprite.color = node.color;
-          sprite.textHeight = 8;
-          return sprite;
-        });
-  
-  
+        // Graph.cameraPosition(
+        //       (0,0,0), // new position
+        //       (0,0,0), // lookAt ({ x, y, z })
+        //       3000  // ms transition duration
+        //     )
+          
 
+        // )
+        .onNodeClick(node => {
+            // Aim at node from outside it
+            const distance = 100;
+            const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
 
-  // fit to canvas when engine stops
-  // Graph.onEngineStop(() => Graph.zoomToFit(400));
+            const newPos = node.x || node.y || node.z
+              ? { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio }
+              : { x: 0, y: 0, z: distance }; // special case if node is in (0,0,0)
 
+            Graph.cameraPosition(
+              newPos, // new position
+              node, // lookAt ({ x, y, z })
+              3000  // ms transition duration
+            );
+          });
+      ;
 
-</script>
-</body> -->
+      Graph.d3Force('charge').strength(-500);
+
+        }
+      
+
+    </script>
+  </body>
 </html>
