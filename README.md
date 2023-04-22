@@ -11,7 +11,7 @@ This codebase features three key components:
 
 1. git clone https://github.com/JonathanBechtel/dva_project.git
 2. Create python 3.10 environment (i.e. conda create --name mst_tree_project python=3.10.8)
-3. Within activated python 3.10 environment, install python packages: pip -r requirements.txt
+3. Within activated python 3.10 environment, install python packages: pip install -r requirements.txt
 
 ## EXECUTION
 
