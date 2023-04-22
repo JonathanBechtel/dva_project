@@ -24,7 +24,8 @@ To execute the web-based frontend/UI:
 5. Navigate by clicking any individual node, clicking & dragging, etc
 
 To replicate the data ingest:
-1. Execute /script/crypto_data.py with python to obtain crypto data from block.cc w/an appropriate API key
+1. Input a block.cc API key into /script/.env
+2. Execute /script/crypto_data.py with python to obtain crypto data from block.cc w/an appropriate API key
 
 To replicate the modeling via the MST (correlation-based and dynamic-time-warping-based):
 1. Navigate to /notebooks/ directory
