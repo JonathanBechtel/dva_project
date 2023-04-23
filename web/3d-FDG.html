@@ -1,17 +1,19 @@
 <!DOCTYPE html>
+
 <head>
   <meta charset="utf-8">
   <title>3D Force-Directed Graph</title>
-  <style> body { margin: 100; } </style>
+  <style> body { margin: 0; } </style>
 
   <script src="//unpkg.com/three"></script>
   <script src="//unpkg.com/3d-force-graph"></script>
   <script src="//unpkg.com/three-spritetext"></script>
   <script type="text/javascript" src="d3-lib/d3.v5.min.js"></script>
- 
+  <link rel="stylesheet" href="d3.css">
 
 
   <style>
+   
     .node-label {
       font-size: 12px;
       padding: 1px 4px;
@@ -22,8 +24,27 @@
     h1 {
   /* margin: 0; */
   /* font-size: 28px; */
+
   text-align: center;
+  background-color:bisque;
 }
+
+.flex-container {
+    display: flex;
+}
+
+.flex-child {
+    flex: 1;
+    /* border: 2px solid bisque; */
+}  
+
+.flex-child:first-child {
+    margin-right: 0px;
+} 
+
+
+
+
   </style>
 
 </head>
@@ -31,11 +52,21 @@
 <body>
   <h1>3D Force-Directed Graph</h1>
   <select id="graphDropdown"></select>
-
   
 
+  <div class="flex-container">
 
-  <div id="3d-graph"></div>
+    <div class="flex-child magenta">
+      <div id="3d-graph"></div>
+    </div>
+    
+    <div class="flex-child green">
+      <div id="lineChart"></div>
+    </div>
+    
+  </div>
+
+  
 
   <script type="importmap">{ "imports": { "three": "https://unpkg.com/three/build/three.module.js" }}</script>
   <script type="module">
@@ -44,11 +75,15 @@
 
     var dataset = [{name: 'Correlation Matrix', file:'data_corr.json'} ,{name: 'Dynamic Time Warping' , file:'data_dtw.json'}];
 
+    var tracker = 0;
+    var tracker2 = 0;
+
     //Initialize
 
     getGraph(dataset[0].file)
+
+    // getInfo('bitcoin')
    
-   console.log(innerHeight)
 
     //Drop down
 d3.select("#graphDropdown")
@@ -83,6 +118,7 @@ getGraph(selectedOption)
       })
       (document.getElementById('3d-graph'))
         .jsonUrl(data)
+        .width(innerWidth/1.75)
         .nodeAutoColorBy('group')
         .nodeVal('sum')
         .nodeThreeObject(node => {
@@ -93,18 +129,21 @@ getGraph(selectedOption)
           return new CSS2DObject(nodeEl);
         })
         .nodeThreeObjectExtend(true)
-        .onBackgroundClick(() => Graph.zoomToFit(400))
-
-        // Graph.cameraPosition(
-        //       (0,0,0), // new position
-        //       (0,0,0), // lookAt ({ x, y, z })
-        //       3000  // ms transition duration
-        //     )
+        .onBackgroundClick(() => 
           
+          Graph.zoomToFit(400))
+        
+        // .onBackgroundClick()
+        
+        .onNodeClick(
+          
+        
+        
+        
+        node => {
 
-        // )
-        // .zoomToFit(400)
-        .onNodeClick(node => {
+          
+          
             // Aim at node from outside it
             const distance = 100;
             const distRatio = 1 + distance/Math.hypot(node.x, node.y, node.z);
@@ -117,16 +156,387 @@ getGraph(selectedOption)
               newPos, // new position
               node, // lookAt ({ x, y, z })
               3000  // ms transition duration
+            //   ,
+            // Graph.nodeColor((3,2,1,0.1))
             );
+
+            getInfo(node.id, "in")
+            getInfo2(node.id, "in")
+            
           });
-      ;
+      
 
       Graph.d3Force('charge').strength(-500);
 
-      // Graph.onEngineStop(() => Graph.zoomToFit(400));
+      // Graph.onBackgroundClick(Graph.width(innerWidth))
+    
 
         }
+
+
+///_____________________________________________________SIDE_INFO_1____________________________________________________________
+
+  function getInfo(coin, action){
+
+
+
+    // d3.select(svg).remove();
+
+  var margin = {top: 60, right: 30, bottom: 60, left: 60},
+  width = 700 - margin.left - margin.right,
+  height = 450 - margin.top - margin.bottom;
+  var coinDeatails = [];
+  const timeConv = d3.timeParse("%Y-%m-%d");
+  var svg;
+
+  if (tracker > 0){
+    if(action == "in"){
+      d3.select("svg").remove()
+      svg = d3.select("#lineChart")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+    var title = svg.append("text")
+      .attr("id", "title-a")
+      .attr("x", width/2)
+      .attr("y", - 0.5* margin.top)
+      .attr("text-anchor", "middle")
+      .style("font-size", "20px")
+      .text("Daily Returns for " + coin);
+
+     
+
+
+    }
+    else{
       
+      d3.select("svg").remove()
+
+    }
+  }
+
+  if (tracker == 0){
+    if(action == "in"){  
+    svg = d3.select("#lineChart")
+    .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var title = svg.append("text")
+      .attr("id", "title-a")
+      .attr("x", width/2)
+      .attr("y", - 0.5* margin.top)
+      .attr("text-anchor", "middle")
+      .style("font-size", "20px")
+      .text("Daily Returns for " + coin);
+
+
+    }
+  }
+  
+  
+
+
+  //Read the data
+  d3.dsv(",", "../data/returns_clean.csv", function(row) {
+    
+
+    // for (const dprop in row) {
+    //   console.log(`${dprop}: ${row[dprop]}`);
+    // }
+    return row;
+  }).then(function(data) {
+    coinDeatails = data.columns.slice(1).map(function(col) {
+      return {
+        name: col.split('_')[0],
+        prices: data.map(function(row){
+          return {
+            date: timeConv(row.timestamp),
+            price: row[col]
+            
+          }
+        })
+      }
+    })
+  
+
+    if (action == "in"){
+  
+  drawLine(coin)
+    }
+  
+    
+  
+  
+  function drawLine(coinName) {
+    // Remove previous lines
+    // d.select("svg").remove();
+    
+    var dat = coinDeatails.find(x=>x.name == coinName)
+    var data = dat.prices
+
+    
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleTime()
+      .domain(d3.extent(data, function(d) {
+        return (d.date);
+      }))
+      .range([ 0, width ]);
+
+
+    var x_axis = d3.axisBottom(x)
+        .ticks(d3.timeMonth.every(3))
+        .tickFormat(d3.timeFormat('%b %y'));
+    
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(x_axis)
+      .append("text")
+          .attr("y", 0.5* margin.top )
+          .attr("x", width/2)
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .style("font-size", "15px")
+          .text("Date");
+    
+    var min = Math.floor(d3.min(data, function(c) { return c.price; }))
+    var max = d3.max(data, function(d) { return +d.price; })
+    
+    // Add Y axis
+    var y = d3.scaleLinear()
+      .domain([min, max])
+      .range([ height, 0 ]);
+
+    var yaxis = d3.axisLeft(y);
+
+    svg.append("g")
+      .call(yaxis)
+      .attr("dy", ".75em")
+      .attr("y", 6)
+        .append("text")
+          .attr("transform", "rotate(-90)")
+          .attr("y", -margin.right * 1.6 )
+          .attr("x", -height/2)
+          .attr("dy", "1em")
+          .style("text-anchor", "middle")
+          .style("font-size", "15px")
+          .text("Return");
+
+    // Add the line
+    svg.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .x(function(d) { return x(d.date) })
+        .y(function(d) { return y(d.price) })
+      )
+      tracker += 1;
+  }
+
+
+
+
+})
+
+
+
+
+
+
+        }
+
+///_____________________________________________________SIDE_INFO_2____________________________________________________________
+
+function getInfo2(coin, action){
+
+
+
+// d3.select(svg).remove();
+
+  var margin = {top: 60, right: 30, bottom: 60, left: 60},
+  width = 700 - margin.left - margin.right,
+  height = 450 - margin.top - margin.bottom;
+  var coinDeatails = [];
+  const timeConv = d3.timeParse("%Y-%m-%d");
+  var svg2;
+
+if (tracker2 > 0){
+if(action == "in"){
+  d3.select("svg").remove()
+  svg2 = d3.select("#lineChart")
+.append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.top + margin.bottom)
+.append("g")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+var title = svg2.append("text")
+  .attr("id", "title-a")
+  .attr("x", width/2)
+  .attr("y", - 0.5* margin.top)
+  .attr("text-anchor", "middle")
+  .style("font-size", "20px")
+  .text("Price for " + coin);
+
+ 
+
+
+}
+else{
+  
+  d3.select("svg").remove()
+
+}
+}
+
+if (tracker2 == 0){
+if(action == "in"){  
+svg2 = d3.select("#lineChart")
+.append("svg")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.top + margin.bottom)
+.append("g")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var title = svg2.append("text")
+  .attr("id", "title-a")
+  .attr("x", width/2)
+  .attr("y", - 0.5* margin.top)
+  .attr("text-anchor", "middle")
+  .style("font-size", "20px")
+  .text("Price for " + coin);
+
+
+}
+}
+
+
+
+
+//Read the data
+d3.dsv(",", "../data/prices_clean.csv", function(row) {
+
+
+// for (const dprop in row) {
+//   console.log(`${dprop}: ${row[dprop]}`);
+// }
+return row;
+}).then(function(data) {
+coinDeatails = data.columns.slice(1).map(function(col) {
+  return {
+    name: col.split('_')[0],
+    prices: data.map(function(row){
+      return {
+        date: timeConv(row.timestamp),
+        price: row[col]
+        
+      }
+    })
+  }
+})
+
+
+
+
+if (action == "in"){
+
+drawLine(coin)
+}
+
+
+
+
+function drawLine(coinName) {
+// Remove previous lines
+// d.select("svg").remove();
+
+var dat = coinDeatails.find(x=>x.name == coinName)
+var data = dat.prices
+
+
+
+// Add X axis --> it is a date format
+var x = d3.scaleTime()
+  .domain(d3.extent(data, function(d) {
+    return (d.date);
+  }))
+  .range([ 0, width ]);
+
+
+var x_axis = d3.axisBottom(x)
+    .ticks(d3.timeMonth.every(3))
+    .tickFormat(d3.timeFormat('%b %y'));
+
+svg2.append("g")
+  .attr("transform", "translate(0," + height + ")")
+  .call(x_axis)
+  .append("text")
+      .attr("y", 0.5* margin.top )
+      .attr("x", width/2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .style("font-size", "15px")
+      .text("Date");
+
+var min = Math.floor(d3.min(data, function(c) { return c.price; }))
+var max = d3.max(data, function(d) { return +d.price; })
+
+// Add Y axis
+var y = d3.scaleLinear()
+  .domain([0, max])
+  .range([ height, 0 ]);
+
+var yaxis = d3.axisLeft(y)
+
+.scale(y);
+
+svg2.append("g")
+  .call(yaxis)
+  .attr("dy", ".75em")
+  .attr("y", 6)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -margin.right * 2 )
+      .attr("x", -height/2)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .style("font-size", "15px")
+      .text("Price");
+
+// Add the line
+svg2.append("path")
+  .datum(data)
+  .attr("fill", "none")
+  .attr("stroke", "steelblue")
+  .attr("stroke-width", 1.5)
+  .attr("d", d3.line()
+    .x(function(d) { return x(d.date) })
+    .y(function(d) { return y(d.price) })
+  )
+  tracker2 += 1;
+}
+
+
+
+
+})
+
+
+
+
+
+
+    }
 
     </script>
   </body>
