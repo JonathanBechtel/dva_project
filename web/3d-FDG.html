@@ -2,7 +2,7 @@
 <head>
   <meta charset="utf-8">
   <title>3D Force-Directed Graph</title>
-  <style> body { margin: 0; } </style>
+  <style> body { margin: 100; } </style>
 
   <script src="//unpkg.com/three"></script>
   <script src="//unpkg.com/3d-force-graph"></script>
@@ -48,7 +48,7 @@
 
     getGraph(dataset[0].file)
    
-   
+   console.log(innerHeight)
 
     //Drop down
 d3.select("#graphDropdown")
@@ -93,7 +93,7 @@ getGraph(selectedOption)
           return new CSS2DObject(nodeEl);
         })
         .nodeThreeObjectExtend(true)
-        // .onBackgroundClick(
+        .onBackgroundClick(() => Graph.zoomToFit(400))
 
         // Graph.cameraPosition(
         //       (0,0,0), // new position
@@ -103,6 +103,7 @@ getGraph(selectedOption)
           
 
         // )
+        // .zoomToFit(400)
         .onNodeClick(node => {
             // Aim at node from outside it
             const distance = 100;
@@ -121,6 +122,8 @@ getGraph(selectedOption)
       ;
 
       Graph.d3Force('charge').strength(-500);
+
+      // Graph.onEngineStop(() => Graph.zoomToFit(400));
 
         }
       
