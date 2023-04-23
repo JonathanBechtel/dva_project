@@ -1,6 +1,6 @@
 ## DESCRIPTION
 
-This repository features the codebase used to develop the minimum-spanning-trees used to explore the crypto data, model the relationships, and cluster accordingly using minimum spanning trees.
+This repository features the codebase used to develop the minimum-spanning-trees used to explore crypto price/return data over time, model the inter-coin relationships, and cluster accordingly using minimum spanning trees (using correlation metrics between coins as well as dynamic time warping).
 
 This codebase features three key components:
 * Data ingest (Python)
@@ -10,8 +10,8 @@ This codebase features three key components:
 ## INSTALLATION 
 
 1. git clone https://github.com/JonathanBechtel/dva_project.git
-2. Create python 3.10 environment (i.e. conda create --name mst_tree_project python=3.10.8)
-3. Within activated python 3.10 environment, install python packages: pip -r requirements.txt
+2. Create python 3.9 environment (i.e. conda create --name mst_tree_project python=3.9.16)
+3. Within activated python 3.9 environment, install python packages: pip install -r requirements.txt
 
 ## EXECUTION
 
@@ -24,7 +24,9 @@ To execute the web-based frontend/UI:
 5. Navigate by clicking any individual node, clicking & dragging, etc
 
 To replicate the data ingest:
-1. Execute /script/crypto_data.py with python to obtain crypto data from block.cc w/an appropriate API key
+1. Obtain a block.cc API key by registering for an account here: https://pro.block.cc/login
+2. Input a block.cc API key into /script/.env
+3. Execute /script/crypto_data.py with python to obtain crypto data from block.cc w/an appropriate API key
 
 To replicate the modeling via the MST (correlation-based and dynamic-time-warping-based):
 1. Navigate to /notebooks/ directory
@@ -37,4 +39,3 @@ To replicate the modeling via the MST (correlation-based and dynamic-time-warpin
     2. Execute the notebook to generate analysis of the two MST approaches in terms of modelling the crypto price/return relationships over time
     3. Open "Clustering & Visualization With DTW.ipynb" within a jupyterlab/notebook environment
     4. Execute the notebook to generate clusters based on the two MST approaches as well as cluster visualizations
-
